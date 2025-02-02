@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="bootstrap/site/static/docs/4.6/assets/js/vendor/jquery.slim.min.js"></script>
+		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/echarts.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" href="./bootstrap/dist/css/bootstrap.min.css" />
+		<script src="bootstrap/dist/js/bootstrap.js" type="text/javascript" charset="utf-8"> </script>
+		<script type="text/javascript">
+		</script>
+	</head>
+	<body >
+		<div id="app">
+			<!-- 导航栏 -->
+			<nav class="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-between align-items-center">  
+			  <a class="navbar-brand d-none d-lg-block" href="#">欢迎进入股票分析系统</a>  
+			  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">  
+			    <span class="navbar-toggler-icon"></span>  
+			  </button>  
+			  <div class="collapse navbar-collapse" id="navbarNav">  
+			    <ul class="navbar-nav">  
+			      <li class="nav-item active">  
+			        <a class="nav-link" href="index.html">首页 <span class="sr-only">(current)</span></a>  
+			      </li>  
+			      <li class="nav-item">
+			      	<a class="nav-link" href="kline.html">K线查询</a>
+			      </li>
+			      <li class="nav-item">
+			      	<a class="nav-link" href="compare.html">对比查询</a>
+			      </li>
+				  <li class="nav-item">
+				  	<a class="nav-link" href="table.html">单日查询</a>
+				  </li>
+				  <li class="nav-item">
+				  	<a class="nav-link" v-if="!islogin" href="login.html">登录</a>
+				  </li>
+				  <li class="nav-item">
+				  	<a class="nav-link" v-if="!islogin" href="register.html">注册</a>
+				  </li>
+				  
+			    </ul>  
+			  </div>   
+			  <ul class="navbar-nav">
+			<a class="navbar-brand d-none d-lg-block" v-if="islogin" href="#">欢迎用户：{{username}}</a> 
+			  <li class="nav-item">
+			  	<a class="nav-link" v-if="islogin" @click="logout" href="index.html">退出登录</a>
+			  </li>
+			  </ul>
+			  
+			  <a class="navbar-brand d-none d-lg-block ms-auto" href="#">  
+			    <img :src="headerurl" width="50" height="50" alt="">  
+			  </a>  
+			</nav>
+			
+			<!-- 巨幕 -->
+			<div class="jumbotron jumbotron-fluid custom-jumbotron">  
+			  <div class="container d-flex justify-content-between align-items-center flex-column flex-md-row">  
+			    <div class="text-container" style="margin-right:200px ;">  
+			      <h1 class="display-8" style="font-size: 30px;">基于Spark的股票数据分析与可视化系统</h1>  
+			      <p class="lead" style="font-size: 18px; margin-top:20px;">在当今信息爆炸的时代，股票市场数据作为反映经济活动和投资者情绪的重要指标，
+						    其分析对于金融从业者、投资者及研究机构而言至关重要。为了高效、准确地处理海量股票数据，  
+						    并直观展示分析结果，我们设计并实现了一个基于Apache Spark的股票数据分析与可视化系统。  
+						    本系统旨在通过利用Spark强大的分布式计算能力，结合先进的数据分析技术和数据可视化工具，  
+						    为用户提供从数据收集、清洗、分析到结果展示的一站式解决方案。</p>  
+			    </div>  
+			    <div class="image-container">  
+			      <img src="img/股市1.jpg" class="img-fluid" alt="Responsive image" style="width: 2500px; height: auto;">  
+			    </div>  
+			  </div>  
+			</div>
+			
+			<!-- 查询菜单 -->
+			<table width="100%">  
+			  <tr>  
+				<td width="10%" style="padding-left:30px ; padding-right:30px;">
+					<div class="card">
+						<img src="img/股市9.jpg" class="card-img-top" alt="...">
+						<div class="card-body">
+							<h5 class="card-title">股票k线指标</h5>
+							<p class="card-text">获取股票的原始k线数据，包括开盘价、收盘价、当日最高价、当日最低价、成交量以及涨幅数据。</p>
+							<a href="kline.html" class="btn btn-primary">k线查询</a>
+						</div>
+					</div>
+				</td> 
+				<td width="10%" style="padding-left:30px ; padding-right:30px;">
+					<div class="card">
+						<img src="img/股市5.jpg" class="card-img-top" alt="...">
+						<div class="card-body">
+							<h5 class="card-title">股票对比分析</h5>
+							<p class="card-text">对比两只股票的原始k线数据，包括开盘价、收盘价、当日最高价、当日最低价、成交量以及涨幅数据。</p>
+							<a href="compare.html" class="btn btn-primary">对比查询</a>
+						</div>
+					</div>
+				</td>  
+				<td width="10%" style="padding-left:30px ; padding-right:30px;">
+					<div class="card">
+						<img src="img/股市8.jpg" class="card-img-top" alt="...">
+						<div class="card-body">
+							<h5 class="card-title">单日股票查询</h5>
+							<p class="card-text">查询单日股票数据，展示当日股票名称、股票开盘收盘价、最高最低价、涨幅、成交量等信息。</p>
+							<a href="table.html" class="btn btn-primary">单日查询</a>
+						</div>
+					</div>
+				</td>
+				<td width="10%" style="padding-left:30px ; padding-right:30px;">
+					<div class="card">
+						<img src="img/股市6.jpg" class="card-img-top" alt="...">
+						<div class="card-body">
+							<h5 class="card-title">A股指数行情</h5>
+							<p class="card-text">指数主要包括上证指数、深证指数、创业板指、中小板指等，通过点击指数标签，实现指数行情k线数据展示。</p>
+							<a href="kline.html" class="btn btn-primary">A股查询</a>
+						</div>
+					</div>
+				</td>  
+				  
+			  </tr>  
+			</table>
+			
+			
+			
+			
+		</div>
+		
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data:{
+					headerurl:'img/小灰人.png',
+					islogin:false,
+					username:null
+				},
+				mounted(){
+					this.init()
+				},
+				methods:{
+					init(){
+						let userName = sessionStorage.getItem("username")
+						if(userName!=null){
+							this.islogin = true
+							this.username = userName
+							this.headerurl = "http://127.0.0.1:81/"+userName+".jpg"
+						}
+					},
+					logout(){
+						sessionStorage.removeItem("username")
+						window.location.href="index.html"
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="ecsd-abstractdao-1.7">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/ecsd-abstractdao-1.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mysql-connector-java-8.0.26.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

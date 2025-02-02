@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="bootstrap/site/static/docs/4.6/assets/js/vendor/jquery.slim.min.js"></script>
+		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/echarts.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" href="./bootstrap/dist/css/bootstrap.min.css" />
+		<script src="bootstrap/dist/js/bootstrap.js" type="text/javascript" charset="utf-8"> </script>
+		<script type="text/javascript">
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			
+
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			  <a class="navbar-brand" href="#">欢迎进入股票分析系统</a>
+			  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			  </button>
+			  <div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav">
+				  <li class="nav-item">
+					<a class="nav-link" href="index.html">首页 <span class="sr-only">(current)</span></a>
+				  </li>
+				  <li class="nav-item active">
+				  	<a class="nav-link" href="kline.html">K线查询</a>
+				  </li>
+				  <li class="nav-item">
+				  	<a class="nav-link" href="compare.html">对比查询</a>
+				  </li>
+				  <li class="nav-item">
+				  	<a class="nav-link" href="table.html">单日查询</a>
+				  </li>
+				  <li class="nav-item">
+					<a class="nav-link" v-if="!islogin" href="login.html">登录</a>
+				  </li>
+				  <li class="nav-item">
+				  	<a class="nav-link" v-if="!islogin" href="register.html">注册</a>
+				  </li>
+				</ul>
+			  </div>
+			  <ul class="navbar-nav">
+			  <a class="navbar-brand d-none d-lg-block" v-if="islogin" href="#">欢迎用户：{{username}}</a> 
+			    <li class="nav-item">
+			    	<a class="nav-link" v-if="islogin" @click="logout" href="index.html">退出登录</a>
+			    </li>
+			    </ul>
+			  <a class="navbar-brand d-none d-lg-block ms-auto" href="#">
+			    <img :src="headerurl" width="50" height="50" alt="">  
+			  </a>
+			</nav>
+			
+
+			<form class="form-horizontal" role="form">
+				
+				<div class="input-group flex-nowrap" style="margin-left: 550px; margin-top: 30px;">
+				  <div class="input-group-prepend" style="margin-top: 7px; ">
+				    开始时间
+				  </div>
+				  <div class="col-sm-3">
+					<input type="text" v-model="startDate" class="form-control" id="firstname"  placeholder="请输入开始时间">
+				  </div>
+				</div>
+				
+				<div class="input-group flex-nowrap" style="margin-left: 550px; margin-top: 20px;">
+				  <div class="input-group-prepend" style="margin-top: 7px; ">
+				    结束时间
+				  </div>
+				  <div class="col-sm-3">
+					<input type="text" v-model="endDate"  class="form-control" id="firstname"  placeholder="请输入结束时间">
+				  </div>
+				</div>
+				
+				<div class="input-group flex-nowrap" style="margin-left: 550px; margin-top: 20px;">
+				  <div class="input-group-prepend" style="margin-top: 7px; ">
+				    股票名称
+				  </div>
+				  <div class="col-sm-3">
+					<input type="text"  v-model="gpName" class="form-control" id="firstname"  placeholder="请输入股票名称">
+				  </div>
+				</div>
+				
+				<div class="input-group flex-nowrap" style="margin-left: 550px; margin-top: 20px;">
+				  <div class="input-group-prepend" style="margin-top: 7px; ">
+				    查询数量
+				  </div>
+				  <div class="col-sm-3">
+					<input type="text" v-model="pagesize" class="form-control" id="firstname" placeholder="请输入查询数量">
+				  </div>
+				</div>
+				<div class="form-group" style="margin-left: 700px; margin-top: 20px;">
+					<label for="firstname" class="col-sm-6 control-label">  </label>
+					<div class="col-sm-3">
+						<button  @click="loadechars" type="button" class="btn btn-light">开始查询</button>
+					</div>
+				</div>
+				
+				<div v-if="showMessage1" class="alert alert-danger" role="alert">
+					{{ message1 }}
+					<button type="button" class="close" @click="closeAlert">&times;</button>
+				</div>
+				
+				
+			</form>
+			<div id="main" style="width: 100%;height:500px;"></div>
+		</div>
+		
+
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data:{
+					headerurl:'img/小灰人.png',
+					islogin:false,
+					username:null,
+					message1: "",
+					showMessage1: false,
+					option:{
+					  xAxis: [
+						{
+							gridIndex:0,
+							data: []
+						},
+						{
+							gridIndex:1,
+							data: []
+						},
+						{
+							gridIndex:0,
+							data: []
+						},
+						{
+							gridIndex:2, 
+							data: []
+						}
+					  ],
+					  yAxis: [
+						  {
+							  scale:true,
+							  gridIndex:0
+						  },
+						  {
+							  scale:true,
+							  gridIndex:1
+						  },
+						  {
+							scale:true,
+							gridIndex:0
+						  },
+						  {
+						  	scale:true,
+						  	gridIndex:1
+						  },
+						  {
+						  	scale:true,
+						  	gridIndex:0
+						  },
+						  {
+						  	scale:true,
+						  	gridIndex:2
+						  }
+					  ],
+					  grid:[
+						{
+							left:70,
+							right:70,
+							top:110,
+							height:120
+						},
+						{
+							left:70,
+							right:70,
+							top:260,
+							height:120
+						},
+						{
+							left:70,
+							right:70,
+							top:110,
+							height:120
+						},
+						{
+							left:70,
+							right:70,
+							top:110,
+							height:120
+						},
+						{
+							left:70,
+							right:70,
+							top:110,
+							height:120
+						},
+						{
+							left:70,
+							right:70,
+							top:260,
+							height:120
+						},
+						{
+							left:100,
+							right:100,
+							top:110,
+							height:120
+						}
+					  ],
+					  legend:{
+						  data:['成交量','k线','5日均线','10日均线','30日均线','成交量5日均线','涨幅']
+					  },
+					  tooltip:{
+						  trigger:'axis'
+					  },
+					  series: [
+						{
+						  name:"k线",
+						  type: 'candlestick',
+						  data:[]
+						},
+						{
+							name:"成交量",
+							type:'bar',
+							xAxisIndex:1,
+							yAxisIndex:1,
+							data:[]
+						},
+						{
+							name:"5日均线",
+							type:'line',
+							xAxisIndex:0,
+							yAxisIndex:0,
+							data:[]
+						},
+						{
+							name:"10日均线",
+							type:'line',
+							xAxisIndex:0,
+							yAxisIndex:0,
+							data:[]
+						},
+						{
+							name:"30日均线",
+							type:'line',
+							xAxisIndex:0,
+							yAxisIndex:0,
+							data:[]
+						},
+						{
+							name:"成交量5日均线",
+							type:'line',
+							xAxisIndex:1,
+							yAxisIndex:1,
+							data:[]
+						},
+						{
+							name:"涨幅",
+							type:'line',
+							xAxisIndex:2,
+							yAxisIndex:2,
+							data:[]
+						}
+					  ]
+					},
+					startDate:'',      //20230101,
+					endDate:'',          //20240717,
+					gpName:"",
+					pagesize:'',
+				},
+				mounted(){
+					this.init();
+				},
+				methods:{
+					init(){
+						let userName = sessionStorage.getItem("username")
+						if(userName!=null){
+							this.islogin = true
+							this.username = userName
+							this.headerurl = "http://127.0.0.1:81/"+userName+".jpg"
+						}
+					},
+					loadechars(){
+						if(sessionStorage.getItem("username")==null)
+						{
+							this.message1="请先登录";
+							this.showMessage1=true;
+							setTimeout(function() {
+								window.location.href = "./login.html";
+								}, 2000);
+						}
+						var chartDom=document.getElementById('main');
+						var myChart=echarts.init(chartDom);
+						let startdate=this.startDate;
+						let enddate=this.endDate;
+						let pagesize = this.pagesize;
+						axios.get(`http://127.0.0.1:81/getGp?startdate=${startdate}&enddate=${enddate}&pagenow=1&gpName=${this.gpName}&pagesize=${pagesize}`)
+						.then(response =>{
+							let xdata = []
+							let klinedata = []
+							let chengjiaoliang = []
+							let mv5 = []
+							let mv10 = []
+							let mvcj = []
+							let mv30 = []
+							let zf=[]
+							let jsonarr = response.data
+													
+							for (let i = 0 ; i < jsonarr.length ; i++){
+								let json = jsonarr[i]
+								//5日均线赋值
+								if(i>=4){
+									let start=i-4
+									let sum = 0
+									for (let index = start;index<=i;index++){
+										let json2 = jsonarr[index]
+										let closeprice = parseFloat(json2.stock1_close)
+										sum += closeprice
+									}
+									mv5[i]=sum / 5
+								}
+								
+									//10日均线赋值
+									if(i>=9){
+										let start=i-9
+										let sum = 0
+										for (let index = start;index<=i;index++){
+											let json3 = jsonarr[index]
+											let closeprice = parseFloat(json3.stock1_close)
+											sum += closeprice
+										}
+										mv10[i]=sum / 10
+									}
+									
+									//成交量均线赋值
+									if(i>=4){
+										let start=i-4
+										let sum = 0
+										for (let index = start;index<=i;index++){
+											let json4 = jsonarr[index]
+											let closeprice = parseFloat(json4.stock1_count)
+											sum += closeprice
+										}
+										mvcj[i]=sum / 5
+									}
+									
+									//30日均线赋值
+									if(i>=29){
+										let start=i-29
+										let sum = 0
+										for (let index = start;index<=i;index++){
+											let json5 = jsonarr[index]
+											let closeprice = parseFloat(json5.stock1_close)
+											sum += closeprice
+										}
+										mv30[i]=sum / 30
+									}
+								
+							
+								xdata.push(json.stock1_date)
+								klinedata.push([
+									parseFloat(json.stock1_open),
+									parseFloat(json.stock1_close),
+									parseFloat(json.stock1_lowest),
+									parseFloat(json.stock1_highest)
+								])
+								chengjiaoliang.push(parseFloat(json.stock1_count))
+								zf.push(parseFloat(json.stock1_zhangfu))
+								
+								
+							}
+							this.option.xAxis[0].data = xdata
+							this.option.xAxis[1].data = xdata
+							this.option.xAxis[2].data = xdata
+							
+							this.option.series[0].data = klinedata
+							this.option.series[1].data = chengjiaoliang
+							this.option.series[2].data = mv5
+							this.option.series[3].data = mv10
+							this.option.series[4].data = mv30
+							this.option.series[5].data = mvcj
+							this.option.series[6].data = zf
+							
+							myChart.setOption(this.option)
+					
+						})
+						
+					},
+					logout(){
+						sessionStorage.removeItem("username")
+						window.location.href="index.html"
+					},
+					closeAlert() {
+					            this.showMessage1 = false; // 关闭警告框
+					        }
+				}
+				// ,
+				// mounted(){
+				// 	this.loadechars()
+				//}
+			})
+		</script>
+	</body>
+</html>

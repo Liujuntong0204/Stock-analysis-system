@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+
+		<link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.css"/>
+		<script src="../bootstrap/js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+
+		<script src="../js/echarts.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="app">
+			<nav class="navbar navbar-default" style="background-color: black;">
+				<ul class="nav nav-tabs">
+					<li style="margin-left: 60px;" role="presentation">
+					  <a>欢迎进入股票分析系统</a>
+					</li>
+				  <li role="presentation"><a href="#">首页</a></li>
+				  <li role="presentation" class="active"><a href="#">展示页</a></li>
+				  <li style="float: right;margin-right: 100px;" role="presentation">
+					 <img src="../img/a.jpg"
+					  class="img-circle" width="50" height="50">
+				  </li>
+				</ul>
+			</nav>
+
+
+			<form class="form-horizontal" role="form">
+
+
+				<div class="form-group">
+					<!--col-sm-4  中的4是占用整个浏览器窗口12分之4的宽度-->
+					<label for="firstname" class="col-sm-4 control-label">开始时间</label>
+					<div class="col-sm-3">
+						<input type="text" v-model="startDate" class="form-control" id="firstname"  placeholder="请输入开始时间">
+					</div>
+				</div>
+
+
+				<div class="form-group">
+					<!--col-sm-4  中的4是占用整个浏览器窗口12分之4的宽度-->
+					<label for="firstname" class="col-sm-4 control-label">结束时间</label>
+					<div class="col-sm-3">
+						<input type="text" v-model="endDate"  class="form-control" id="firstname"  placeholder="请输入结束时间">
+					</div>
+				</div>
+
+
+				<div class="form-group">
+					<!--col-sm-4  中的4是占用整个浏览器窗口12分之4的宽度-->
+					<label for="firstname" class="col-sm-4 control-label">股票名称</label>
+					<div class="col-sm-3">
+						<input type="text"  v-model="gpName" class="form-control" id="firstname"
+							   placeholder="请输入股票名称">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="firstname" class="col-sm-6 control-label">  </label>
+					<div class="col-sm-3">
+						<button  @click="loadechars" type="button" class="btn btn-default">开始查询</button>
+					</div>
+				</div>
+			</form>
+			<div id="main" style="width: 100%;height:300px;"></div>
+		</div>
+
+
+	   <script type="text/javascript">
+	   	     new Vue({
+				 el:"#app",
+				 data:{
+					 option: {
+					   xAxis: [
+					 	  {
+					 		 gridIndex: 0, //网格布局的第0个
+					          data: [] //x轴日期数据
+					       },
+					 	  {
+					 		 gridIndex: 1, //网格布局的第1个
+					 	     data: [] //x轴日期数据
+					 	  },
+					 	  {
+					 	  	 gridIndex: 0, //网格布局的第1个
+					 	     data: [] //x轴日期数据
+					 	  },
+						  {
+						  	 gridIndex: 0, //网格布局的第1个
+						     data: [] //x轴日期数据
+						  }
+					   ]
+					   ,
+					   yAxis:
+					        [
+					   			{
+					   			  scale: true,
+					   			  gridIndex: 0
+					   			},
+					   			{
+					   			  scale: true,
+					   			  gridIndex: 1
+					   			},
+					 			{
+					 			  scale: true,
+					 			  gridIndex: 0
+					 			},
+								{
+								  scale: true,
+								  gridIndex: 0
+								}
+					   	   ]
+					   ,
+					   grid: [
+					 	{
+					 	  left: 20,
+					 	  right: 20,
+					 	  top: 110,
+					 	  height: 120
+					 	},
+					 	{
+					 	  left: 20,
+					 	  right: 20,
+					 	  height: 40,
+					 	  top: 260
+					 	}
+					   ],
+					    legend: {
+					 	  data: ['成交量', 'K线','5日均线','10日均线']
+					    },
+					    tooltip: {
+					    	  trigger: 'axis'  //鼠标放到k线出有对话框效果
+					    },
+					   series: [
+					     {
+					 	  name:"K线",
+					       type: 'candlestick',
+					 	  xAxisIndex: 0, //网格布局 第一个
+					 	  yAxisIndex: 0, //网格布局 第一个
+					       data: []
+					     },
+					 	{
+					 	   name:"成交量",
+					 	   type: 'bar',
+					 	   xAxisIndex: 1, //网格布局 第一个
+					 	   yAxisIndex: 1, //网格布局 第一个
+					 	   data: [] //成交量数据
+					 	},
+					 	{
+					 	   name:"5日均线",
+					 	   type: 'line',
+					 	   xAxisIndex: 0, //网格布局 第一个
+					 	   yAxisIndex: 0, //网格布局 第一个
+					 	   data: [] //成交量数据
+					 	},
+						{
+						   name:"10日均线",
+						   type: 'line',
+						   xAxisIndex: 0, //网格布局 第一个
+						   yAxisIndex: 0, //网格布局 第一个
+						   data: [] //成交量数据
+						}
+					   ]
+					 },
+					 startDate:'19990101',  //19990101
+					 endDate:'20240717',    //20240717
+					 gpName:'新美星'
+				 },
+				 methods:{
+					 loadechars(){
+						var chartDom = document.getElementById('main');
+						var myChart = echarts.init(chartDom);
+						let startDate = this.startDate
+						let endDate   = this.endDate
+						let gpName = this.gpName
+
+						axios.get(`http://127.0.0.1/getStocks?startDate=${startDate}&endDate=${endDate}&pageNow=1&gpName=${gpName}`)
+						.then(response => {
+							 let xdata =[]  //x轴的日期数据 三个grid
+							 let klinedata = []
+							 let chengjiaoliang = []
+							 //均线数据赋值
+							 let mv5 = []
+							 let mv10 = []
+							 let jsonarr =  response.data
+							 for(let i=0;i<jsonarr.length;i++){
+								 let json =  jsonarr[i]
+								 //想办法给均线（mv5）赋值
+								 //计算5日均线
+								 if(i>=4){
+									 let start = i-4
+									 let sum_close_5 = 0
+									 for(let index=start;index<=i;index++){
+
+										let jsonObject = jsonarr[index]
+										//收盘价
+										let closePrice =  parseFloat(jsonObject.table_stock_closePrice)
+									    sum_close_5 += closePrice
+									 }
+									 mv5.push(sum_close_5/5)
+								 }else{
+									 mv5.push(null)
+								 }
+
+								 //计算10日均线
+								 if(i>=9){
+									let start = i-9
+									let sum_close_10 = 0  //当前循环的这一天前面10个交易日的收盘价之和
+									for(let index=start;index<=i;index++){
+										let jsonObject = jsonarr[index]
+										//收盘价
+										let closePrice =  parseFloat(jsonObject.table_stock_closePrice)
+										sum_close_10 += closePrice
+									}
+									mv10.push(sum_close_10/10)  //10日均线的值
+								 }else{
+									 mv10.push(null)
+								 }
+
+
+
+
+								//给三个x轴时间线赋值
+								xdata.push(json.table_stock_yyyymmdd)
+								//给k线赋值
+								klinedata.push(
+								  [
+								  parseFloat(json.table_stock_openrice),
+								  parseFloat(json.table_stock_closePrice),
+								  parseFloat(json.table_stock_hiPrice),
+								  parseFloat(json.table_stock_lowPrice)
+								  ]
+								)
+								//给成交量赋值
+								chengjiaoliang.push(parseFloat(json.table_stock_volume))
+
+
+							 }
+							 this.option.xAxis[0].data = xdata
+							 this.option.xAxis[1].data = xdata
+							 this.option.xAxis[2].data = xdata
+
+							 this.option.series[0].data = klinedata
+							 this.option.series[1].data = chengjiaoliang
+
+							 this.option.series[2].data =mv5
+							 this.option.series[3].data =mv10
+
+							 myChart.setOption(this.option);
+
+						})
+					 }
+				 }
+			 })
+	   </script>
+	</body>
+</html>
